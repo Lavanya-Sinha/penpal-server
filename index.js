@@ -30,10 +30,10 @@ const db = mysql.createConnection({
 
 db.connect((err) => {
   if (err) {
-    console.error("❌ Failed to connect to DB:", err);
+    console.error("Failed to connect to DB:", err);
     return;
   }
-  console.log("✅ Connected to the MySQL database.");
+  console.log("Connected to the MySQL database.");
 });
 
 app.post("/register", (req, res) => {
@@ -47,18 +47,18 @@ app.post("/register", (req, res) => {
     "INSERT INTO users (fullname, email, password) VALUES (?, ?, ?)";
   db.query(query, [fullname, email, password], (err, result) => {
     if (err) {
-      console.error("❌ Error inserting user:", err);
+      console.error("Error inserting user:", err);
       return res.status(500).json({ error: "Failed to add user." });
     }
 
     res.status(201).json({
-      message: "✅ User registered successfully.",
+      message: "User registered successfully.",
       userId: result.insertId,
     });
   });
 });
 
-// 🔐 Login Route
+// Login Route
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
@@ -69,7 +69,7 @@ app.post("/login", (req, res) => {
   const query = "SELECT * FROM users WHERE email = ? AND password = ?";
   db.query(query, [email, password], (err, results) => {
     if (err) {
-      console.error("❌ Database error:", err);
+      console.error("Database error:", err);
       return res.status(500).json({ error: "Internal server error." });
     }
 
@@ -83,7 +83,7 @@ app.post("/login", (req, res) => {
     });
 
     res.status(200).json({
-      message: "✅ Login successful.",
+      message: "Login successful.",
       token,
       user: { id: user.id, email: user.email },
     });
@@ -108,24 +108,23 @@ app.get("/me", authenticateToken, (req, res) => {
   });
 });
 
-// 🔍 Public Route
+// Public Route
 app.get("/users", (req, res) => {
   db.query("SELECT * FROM users", (err, results) => {
     if (err) {
-      console.error("❌ Error reading users table:", err);
+      console.error("Error reading users table:", err);
       return res.status(500).json({ error: "Internal server error." });
     }
     res.json(results);
   });
 });
 
-// Create a story
 app.post("/stories", authenticateToken, (req, res) => {
   const { title, content, author } = req.body;
   const sql = "INSERT INTO stories (title, content, author) VALUES (?, ?, ?)";
   db.query(sql, [title, content, author], (err, result) => {
     if (err) return res.status(500).json({ error: "Error creating story" });
-    res.send({ message: "Story created ✨", id: result.insertId });
+    res.send({ message: "Story created", id: result.insertId });
   });
 });
 
@@ -156,7 +155,6 @@ app.delete("/stories/:id", authenticateToken, (req, res) => {
   });
 });
 
-// Get all stories
 app.get("/stories", (req, res) => {
   db.query("SELECT * FROM stories", (err, results) => {
     if (err) return res.status(500).json({ error: "Error fetching stories" });
@@ -220,12 +218,12 @@ app.post("/comments/:id", authenticateToken, (req, res) => {
     [id, user_name, user_email, comment_content],
     (err, result) => {
       if (err) {
-        console.error("❌ Error inserting comment:", err);
+        console.error("Error inserting comment:", err);
         return res.status(500).json({ error: "Failed to add comment." });
       }
 
       res.status(201).json({
-        message: "✅ Comment added successfully.",
+        message: "Comment added successfully.",
         commentId: result.insertId,
       });
     }
@@ -263,7 +261,6 @@ app.post("/collaborators/:id", authenticateToken, (req, res) => {
     return res.status(400).json({ error: "Collaborators array is required." });
   }
 
-  // Now just map directly because it's an array of strings (emails)
   const values = collaborators.map((email) => [id, email]);
 
   console.log("Inserting collaborators:", values);
@@ -272,12 +269,12 @@ app.post("/collaborators/:id", authenticateToken, (req, res) => {
 
   db.query(query, [values], (err, result) => {
     if (err) {
-      console.error("❌ Error inserting collaborators:", err);
+      console.error("Error inserting collaborators:", err);
       return res.status(500).json({ error: "Failed to add collaborators." });
     }
 
     res.status(201).json({
-      message: "✅ Collaborators added successfully.",
+      message: "Collaborators added successfully.",
       affectedRows: result.affectedRows,
     });
   });
@@ -294,7 +291,7 @@ app.get("/user/:email", authenticateToken, (req, res) => {
   });
 });
 
-// 🌐 Server Start
+// Server Start
 app.listen(port, () => {
-  console.log(`🚀 Server is running at http://localhost:${port}`);
+  console.log(`Server is running at http://localhost:${port}`);
 });
